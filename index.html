@@ -188,7 +188,7 @@ function valTab(d){
 }
 
 function dcfTab(d){
-  if(!d.dcf)return `<p class="note">DCF inputs (free cash flow, balance sheet) aren't available for this symbol${d.hasFMP?"":" — add the optional FMP_KEY to enable DCF"}.</p>`;
+  if(!d.dcf)return `<p class="note">${d.hasFMP?"The DCF model couldn't load financials for this symbol. This usually means either the company isn't covered by the free data plan, or you've hit the provider's daily request limit (which resets tomorrow). Try a large US stock like AAPL or MSFT to confirm it's working.":"DCF requires the optional FMP_KEY. Add it in Vercel → Settings → Environment Variables, then redeploy."}</p>`;
   const a=d.dcf.assumptions;
   const assumpRows=[
     ["Risk-Free Rate (10Y)",a.riskFree],["Equity Risk Premium",a.erp],["Beta",a.beta],
