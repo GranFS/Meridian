@@ -168,27 +168,36 @@ function fundTab(d){
 function valTab(d){
   let html=sec("Valuation Summary");
   const rows=[];
-  if(d.currentPrice)rows.push(["Current Price",d.currentPrice,"",C.ink]);
-  if(d.consensus)rows.push(["Analyst Consensus Target",d.consensus.mean,d.consensus.upside,C.blue]);
-  if(d.dcf)rows.push(["DCF Fair Value",d.dcf.fairValue,d.dcf.upside,C.purple]);
-  html+=`<div class="card" style="overflow:hidden;margin-bottom:20px;"><table><thead><tr><th>Method</th><th>Value / Target</th><th>Upside</th></tr></thead><tbody>${rows.map(r=>`<tr><td style="font-weight:600;color:${r[3]};">${r[0]}</td><td style="font-weight:700;">${r[1]}</td><td style="font-weight:600;color:${(r[2]||'').startsWith('-')?C.red:r[2]?C.green:C.faint};">${r[2]||"—"}</td></tr>`).join("")}</tbody></table></div>`;
+  rows.push(["Current Price",d.currentPrice,"","market",C.ink]);
+  if(d.consensus)rows.push(["Analyst Consensus Target",d.consensus.mean,d.consensus.upside,d.consensus.source,C.blue]);
+  if(d.dcf)rows.push(["DCF Fair Value",d.dcf.fairValue,d.dcf.upside,"Meridian model",C.purple]);
+  if(d.ev&&d.ev.evEbitda!=="—")rows.push(["EV / EBITDA Multiple",d.ev.evEbitda,"","trailing TTM",C.amber]);
+  html+=`<div class="card" style="overflow:auto;margin-bottom:20px;"><table><thead><tr><th>Method</th><th>Value / Target</th><th>Upside</th><th>Basis</th></tr></thead><tbody>${rows.map(r=>`<tr><td style="font-weight:600;color:${r[4]};">${r[0]}</td><td style="font-weight:700;">${r[1]}</td><td style="font-weight:600;color:${(r[2]||'').startsWith('-')?C.red:r[2]?C.green:C.faint};">${r[2]||"—"}</td><td style="color:${C.faint};font-size:11px;">${r[3]}</td></tr>`).join("")}</tbody></table></div>`;
+
+  if(d.consensus){
+    html+=sec("Analyst Price Target");
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;margin-bottom:8px;">
+      ${stat("Low",d.consensus.low,C.red)}${stat("Mean",d.consensus.mean,C.blue)}${stat("Median",d.consensus.median,C.blue)}${stat("High",d.consensus.high,C.green)}${stat("Upside",d.consensus.upside,(d.consensus.upside||'').startsWith('-')?C.red:C.green)}</div>
+      <p class="note" style="margin-bottom:20px;">Source: ${d.consensus.source}${d.consensus.analystCount?` · ${d.consensus.analystCount} analysts`:""}${d.consensus.asOf?` · as of ${d.consensus.asOf}`:""}. Individual analyst-by-name targets require a premium data tier.</p>`;
+  } else {
+    html+=`<p class="note" style="margin-bottom:20px;">No analyst consensus target is available for this symbol on the free data tier.</p>`;
+  }
 
   if(d.ev){
     html+=sec("Enterprise Value");
-    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:8px;">
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;">
       ${stat("Enterprise Value",d.ev.enterpriseValue,C.purple)}${stat("EV / EBITDA",d.ev.evEbitda)}${stat("EV / Sales",d.ev.evSales)}</div>`;
   }
-  if(d.consensus){
-    html+=sec("Price Target Range");
-    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;">
-      ${stat("Low",d.consensus.low,C.red)}${stat("Mean",d.consensus.mean,C.blue)}${stat("High",d.consensus.high,C.green)}${stat("Upside",d.consensus.upside,(d.consensus.upside||'').startsWith('-')?C.red:C.green)}</div>`;
-  }
-  if(!d.dcf&&!d.ev&&!d.consensus)html+=`<p class="note">Valuation data isn't available for this symbol on the current data plan.</p>`;
   return html;
 }
 
 function dcfTab(d){
-  if(!d.dcf)return `<p class="note">${d.hasFMP?"The DCF model couldn't load financials for this symbol. This usually means either the company isn't covered by the free data plan, or you've hit the provider's daily request limit (which resets tomorrow). Try a large US stock like AAPL or MSFT to confirm it's working.":"DCF requires the optional FMP_KEY. Add it in Vercel → Settings → Environment Variables, then redeploy."}</p>`;
+  if(!d.dcf){
+    const msg = d.dcfError==="no_key"
+      ? "DCF requires the optional FMP_KEY. Add it in Vercel → Settings → Environment Variables, then redeploy."
+      : "The DCF couldn't load cash-flow data for this symbol. Most likely it's not covered on the free data tier, or you've hit the provider's daily request limit (resets tomorrow). Large US stocks like AAPL or MSFT have the fullest coverage.";
+    return `<p class="note">${msg}</p>`;
+  }
   const a=d.dcf.assumptions;
   const assumpRows=[
     ["Risk-Free Rate (10Y)",a.riskFree],["Equity Risk Premium",a.erp],["Beta",a.beta],
@@ -200,6 +209,9 @@ function dcfTab(d){
     <div class="card" style="padding:18px;background:linear-gradient(135deg,#f5f0ff,#eef4ff);border-color:${C.purple}33;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div><div class="slabel" style="color:${C.purple};">DCF Fair Value / Share</div><div style="font-size:30px;font-weight:800;color:${C.purple};">${d.dcf.fairValue}</div></div>
       <div style="text-align:right;"><div class="slabel" style="color:${C.purple};">vs Current Price</div><div style="font-size:20px;font-weight:700;color:${(d.dcf.upside||'').startsWith('-')?C.red:C.green};">${d.dcf.upside}</div></div>
+    </div>
+    <div class="card" style="padding:12px 14px;background:${C.amberSoft};border-color:${C.amber}44;font-size:12px;color:#7a4a08;line-height:1.55;">
+      <strong>How to read this:</strong> A pure 5-year FCF discount model is conservative by design and often lands well below the market price for high-growth or mega-cap names, because it can't fully capture the long-run growth the market prices in. Treat this as a valuation <em>floor</em> and a sensitivity tool — compare it against the analyst consensus target on the Valuation tab rather than reading it as a prediction.
     </div>
 
     <div>${sec("Model Assumptions (Market Consensus Defaults)")}
@@ -267,15 +279,40 @@ function analystTab(d){
   return html;
 }
 
+let PEER_CACHE={};
 function peersTab(d){
   if(!d.peers||!d.peers.length)return `<p class="note">No comparable companies returned for this symbol.</p>`;
-  return `${sec("Comparable Companies — tap to open")}
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;">
-      ${d.peers.map(p=>`<div class="chip" onclick="loadTicker('${p.ticker}')">
-        <span class="mono" style="font-size:15px;font-weight:700;color:${C.blue};">${p.ticker}</span>
-        <span style="font-size:11px;color:${C.faint};">View analysis →</span></div>`).join("")}
-    </div>
-    <p class="note" style="margin-top:14px;">Peers are sourced live from the same sector/industry. Click any to load its full Meridian page.</p>`;
+  const classLabel = d.naics ? `NAICS ${d.naics}` : d.sic ? `SIC ${d.sic}` : "Industry";
+  // Build table shell; rows fill in as peer data loads.
+  const rows = d.peers.map(p=>`<tr id="peer-${p.ticker}">
+      <td style="font-weight:700;"><span class="mono" style="color:${C.blue};cursor:pointer;" onclick="loadTicker('${p.ticker}')">${p.ticker}</span></td>
+      <td class="mono" style="font-size:11px;color:${C.faint};" data-f="sic">…</td>
+      <td data-f="price">…</td><td data-f="sales">…</td><td data-f="marketCap">…</td>
+      <td data-f="eps">…</td><td data-f="target" style="font-weight:600;color:${C.blue};">…</td>
+    </tr>`).join("");
+  // Kick off lazy loads after render
+  setTimeout(()=>d.peers.forEach(p=>loadPeer(p.ticker)),50);
+  return `${sec(`Comparable Companies · ${classLabel}`)}
+    <div class="card" style="overflow:auto;"><table>
+      <thead><tr><th>Ticker</th><th style="text-align:left;">Class</th><th>Price</th><th>Sales</th><th>Mkt Cap</th><th>EPS</th><th>Cons. Target</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <p class="note" style="margin-top:14px;">Tap any ticker to open its full Meridian page. Consensus target is the market's mean analyst target per company (not current price). Classification uses NAICS where the data provider supplies it, otherwise SIC/industry — true NAICS-code peer matching isn't available on the free tier. Loading each peer uses extra data requests, so heavy use may hit the daily cap (cells show "—" if so).</p>`;
+}
+async function loadPeer(ticker){
+  if(PEER_CACHE[ticker]){fillPeer(ticker,PEER_CACHE[ticker]);return;}
+  try{
+    const r=await fetch(`/api/stock?mode=peer&q=${encodeURIComponent(ticker)}`);
+    const j=await r.json();
+    if(j.error)throw new Error();
+    PEER_CACHE[ticker]=j;fillPeer(ticker,j);
+  }catch{ fillPeer(ticker,{sic:"—",price:"—",sales:"—",marketCap:"—",eps:"—",target:"—"}); }
+}
+function fillPeer(ticker,j){
+  const row=document.getElementById(`peer-${ticker}`);
+  if(!row)return;
+  ["sic","price","sales","marketCap","eps","target"].forEach(f=>{
+    const cell=row.querySelector(`[data-f="${f}"]`); if(cell)cell.textContent=j[f]??"—";
+  });
 }
 
 window.pick=pick;window.setTab=setTab;window.analyze=analyze;window.loadTicker=loadTicker;
