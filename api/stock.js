@@ -5,7 +5,7 @@
 // Both have free tiers. FMP is optional; if absent, DCF falls back to Finnhub-only fields.
 
 const FINNHUB = "https://finnhub.io/api/v1";
-const FMP = "https://financialmodelingprep.com/api/v3";
+const FMP = "https://financialmodelingprep.com/stable";
 
 async function getJSON(url) {
   const res = await fetch(url);
@@ -52,11 +52,11 @@ export default async function handler(req, res) {
       let cashflow = null, balance = null, ratios = null, incomeGrowth = null, enterprise = null;
       if (fmpKey) {
         [cashflow, balance, ratios, incomeGrowth, enterprise] = await Promise.all([
-          safe(fmp(`/cash-flow-statement/${sym}?limit=1`, fmpKey)),
-          safe(fmp(`/balance-sheet-statement/${sym}?limit=1`, fmpKey)),
-          safe(fmp(`/ratios-ttm/${sym}`, fmpKey)),
-          safe(fmp(`/financial-growth/${sym}?limit=1`, fmpKey)),
-          safe(fmp(`/enterprise-values/${sym}?limit=1`, fmpKey)),
+          safe(fmp(`/cash-flow-statement?symbol=${sym}&limit=1`, fmpKey)),
+          safe(fmp(`/balance-sheet-statement?symbol=${sym}&limit=1`, fmpKey)),
+          safe(fmp(`/ratios-ttm?symbol=${sym}`, fmpKey)),
+          safe(fmp(`/financial-growth?symbol=${sym}&limit=1`, fmpKey)),
+          safe(fmp(`/enterprise-values?symbol=${sym}&limit=1`, fmpKey)),
         ]);
       }
 
@@ -94,9 +94,15 @@ export default async function handler(req, res) {
       const ratePath = [riskFree, riskFree-0.0025, riskFree-0.0050, riskFree-0.0050, riskFree-0.0050];
 
       let dcf = null, ev = null;
-      const cf0 = cashflow?.[0] || null;
-      const bs0 = balance?.[0] || null;
-      const fcfBase = cf0?.freeCashFlow || null;
+      const cf0 = (Array.isArray(cashflow) ? cashflow[0] : cashflow) || null;
+      const bs0 = (Array.isArray(balance) ? balance[0] : balance) || null;
+      // FCF: prefer explicit field, else operating cash flow minus capex
+      let fcfBase = cf0?.freeCashFlow ?? null;
+      if (fcfBase == null && cf0) {
+        const ocf = cf0.operatingCashFlow ?? cf0.netCashProvidedByOperatingActivities ?? null;
+        const capex = cf0.capitalExpenditure ?? 0;
+        if (ocf != null) fcfBase = ocf + capex; // capex is negative in FMP, so add
+      }
       const totalDebt = bs0 ? (bs0.totalDebt ?? ((bs0.shortTermDebt||0)+(bs0.longTermDebt||0))) : null;
       const cashEq = bs0?.cashAndShortTermInvestments ?? bs0?.cashAndCashEquivalents ?? null;
 
@@ -105,8 +111,10 @@ export default async function handler(req, res) {
         const equityWeight = 1 - debtWeight;
         const costOfDebt = (riskFree + 0.015) * (1 - taxRate);
         const wacc = equityWeight*costOfEquity + debtWeight*costOfDebt;
-        const gGrowth = incomeGrowth?.[0]?.freeCashFlowGrowth != null
-          ? Math.max(0.02, Math.min(0.18, incomeGrowth[0].freeCashFlowGrowth)) : 0.08;
+        const ig0 = (Array.isArray(incomeGrowth) ? incomeGrowth[0] : incomeGrowth) || null;
+        const rawGrowth = ig0?.freeCashFlowGrowth ?? ig0?.growthFreeCashFlow ?? null;
+        const gGrowth = rawGrowth != null
+          ? Math.max(0.02, Math.min(0.18, rawGrowth)) : 0.08;
         const terminalGrowth = 0.025;
 
         const project = (waccX, tgX) => {
@@ -150,12 +158,14 @@ export default async function handler(req, res) {
       }
 
       // ---------- EV valuation ----------
-      const evNow = enterprise?.[0]?.enterpriseValue || (price&&shares ? price*shares + (totalDebt||0) - (cashEq||0) : null);
-      const ebitda = ratios?.[0]?.enterpriseValueMultipleTTM && evNow ? evNow/ratios[0].enterpriseValueMultipleTTM : null;
+      const entObj = (Array.isArray(enterprise) ? enterprise[0] : enterprise) || null;
+      const ratObj = (Array.isArray(ratios) ? ratios[0] : ratios) || null;
+      const evNow = entObj?.enterpriseValue || (price&&shares ? price*shares + (totalDebt||0) - (cashEq||0) : null);
+      const evEbitdaVal = ratObj?.enterpriseValueMultipleTTM ?? ratObj?.evToEBITDATTM ?? ratObj?.enterpriseValueOverEBITDATTM ?? null;
       if (evNow) {
         ev = {
           enterpriseValue:`$${(evNow/1e9).toFixed(1)}B`,
-          evEbitda: ratios?.[0]?.enterpriseValueMultipleTTM ? ratios[0].enterpriseValueMultipleTTM.toFixed(1)+"x" : (metric["currentEv/ebitdaAnnual"]? metric["currentEv/ebitdaAnnual"].toFixed(1)+"x":"—"),
+          evEbitda: evEbitdaVal != null ? evEbitdaVal.toFixed(1)+"x" : (metric["currentEv/ebitdaAnnual"]? metric["currentEv/ebitdaAnnual"].toFixed(1)+"x":"—"),
           evSales: metric["currentEv/salesAnnual"]? metric["currentEv/salesAnnual"].toFixed(1)+"x":"—",
         };
       }
