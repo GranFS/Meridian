@@ -1,0 +1,6 @@
+{
+  "name": "meridian-stock-analyzer",
+  "version": "1.0.0",
+  "description": "Live equity research web app powered by Finnhub",
+  "private": true
+}

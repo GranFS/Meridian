@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meridian — Live Equity Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#0a0e14; --panel:#11161f; --panelAlt:#0d1117; --border:#1c2433;
+    --text:#e6edf3; --dim:#8b98a9; --faint:#566173;
+    --accent:#d4a04c; --accentSoft:#d4a04c1a; --green:#3fb950; --red:#f85149; --amber:#d4a04c;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); font-family:'Inter',sans-serif; color:var(--text); padding:26px 16px; min-height:100vh; }
+  .wrap { max-width:840px; margin:0 auto; }
+  h1 { margin:0; font-size:26px; font-weight:700; font-family:'Fraunces',serif; letter-spacing:-0.01em; }
+  .mono { font-family:'IBM Plex Mono',monospace; }
+  .spin { width:38px; height:38px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .fade { animation:fade .35s ease; }
+  @keyframes fade { from { opacity:0; transform:translateY(6px);} to {opacity:1; transform:none;} }
+  input { width:100%; background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:13px 14px 13px 40px; color:var(--text); font-size:15px; font-family:'Inter',sans-serif; font-weight:500; outline:none; transition:border-color .15s; }
+  input:focus { border-color:var(--accent); }
+  .opt:hover { background:var(--accentSoft); }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tabs { scrollbar-width:none; }
+  table { width:100%; border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:12px; }
+  th { padding:10px 14px; color:var(--faint); font-size:10px; letter-spacing:0.1em; font-weight:600; border-bottom:1px solid var(--border); }
+  td { padding:9px 14px; border-bottom:1px solid #1c243350; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="margin-bottom:22px;">
+    <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
+      <h1>Meridian</h1>
+      <span class="mono" style="font-size:10px; color:var(--accent); letter-spacing:0.2em;">EQUITY RESEARCH</span>
+      <span class="mono" style="font-size:9px; color:var(--green); letter-spacing:0.12em; padding:2px 7px; border:1px solid #3fb95040; border-radius:4px; background:#3fb95010; display:inline-flex; align-items:center; gap:5px;">
+        <span style="width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block;"></span>LIVE
+      </span>
+    </div>
+    <p class="mono" style="margin:4px 0 0; color:var(--faint); font-size:12px;">Search a company — live data via Finnhub</p>
+  </div>
+
+  <div id="searchBox" style="position:relative; margin-bottom:26px;">
+    <span class="mono" style="position:absolute; left:16px; top:14px; color:var(--faint); font-size:14px; pointer-events:none;">&#9906;</span>
+    <input id="search" placeholder="Search a company — e.g. Apple, Nvidia, Tesla…" autocomplete="off" />
+    <div id="dropdown"></div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+const P = { green:"#3fb950", red:"#f85149", amber:"#d4a04c", accent:"#d4a04c", text:"#e6edf3", dim:"#8b98a9", faint:"#566173", border:"#1c2433", panel:"#11161f", panelAlt:"#0d1117", accentSoft:"#d4a04c1a" };
+const $ = (id) => document.getElementById(id);
+let debounce, lastReq = 0, activeTab = "overview", DATA = null;
+
+function ratingColor(r){ const v=(r||"").toLowerCase(); if(v.includes("buy"))return P.green; if(v.includes("sell"))return P.red; return P.amber; }
+
+/* ---------- search + dropdown ---------- */
+$("search").addEventListener("input", (e) => {
+  const q = e.target.value.trim();
+  clearTimeout(debounce);
+  if (q.length < 2) { $("dropdown").innerHTML = ""; return; }
+  debounce = setTimeout(() => doSearch(q), 350);
+});
+
+async function doSearch(q) {
+  const myId = ++lastReq;
+  $("dropdown").innerHTML = dropdownShell(`<div style="padding:12px 16px; color:${P.faint}; font-size:12px; display:flex; align-items:center; gap:10px;" class="mono"><div class="spin" style="width:14px;height:14px;border-width:2px;"></div>Searching…</div>`);
+  try {
+    const res = await fetch(`/api/stock?mode=search&q=${encodeURIComponent(q)}`);
+    const json = await res.json();
+    if (myId !== lastReq) return;
+    if (json.error) return showDropError(json.error);
+    const results = json.results || [];
+    if (!results.length) return showDropError("No matches found. Try the full company name or exact ticker.");
+    $("dropdown").innerHTML = dropdownShell(results.map((c,i) => `
+      <div class="opt" onclick='pick(${JSON.stringify(c).replace(/'/g,"&#39;")})' style="padding:11px 16px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; ${i<results.length-1?`border-bottom:1px solid ${P.border};`:""} transition:background .12s;">
+        <span style="font-size:14px; font-weight:500;">${c.name}</span>
+        <span class="mono" style="color:${P.accent}; font-size:12px; font-weight:600; padding:2px 8px; background:${P.accentSoft}; border-radius:4px;">${c.ticker} · ${c.exchange}</span>
+      </div>`).join(""));
+  } catch (err) {
+    if (myId === lastReq) showDropError("Search failed: " + err.message);
+  }
+}
+function dropdownShell(inner){ return `<div class="fade" style="position:absolute; top:calc(100% + 6px); left:0; right:0; background:${P.panel}; border:1px solid ${P.border}; border-radius:10px; overflow:hidden; z-index:20; box-shadow:0 12px 32px rgba(0,0,0,0.5);">${inner}</div>`; }
+function showDropError(msg){ $("dropdown").innerHTML = dropdownShell(`<div class="mono" style="padding:12px 16px; color:${P.red}; font-size:12px; line-height:1.5;">⚠ ${msg}</div>`); }
+document.addEventListener("click", (e) => { if (!$("searchBox").contains(e.target)) $("dropdown").innerHTML = ""; });
+
+function pick(c) {
+  $("search").value = `${c.name} (${c.ticker})`;
+  $("dropdown").innerHTML = "";
+  analyze(c.ticker);
+}
+
+/* ---------- analyze ---------- */
+async function analyze(sym) {
+  activeTab = "overview"; DATA = null;
+  $("content").innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; gap:18px; padding:70px 0;"><div class="spin"></div><p class="mono" style="color:${P.faint}; font-size:12px; letter-spacing:0.18em;">FETCHING LIVE DATA…</p></div>`;
+  try {
+    const res = await fetch(`/api/stock?mode=analyze&q=${encodeURIComponent(sym)}`);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    DATA = json;
+    render();
+  } catch (err) {
+    $("content").innerHTML = `<div class="mono" style="padding:16px; background:${P.red}10; border:1px solid ${P.red}35; border-radius:9px; color:${P.red}; font-size:12.5px; line-height:1.5;">⚠ ${err.message}</div>`;
+  }
+}
+
+/* ---------- render ---------- */
+const TABS = [["overview","Overview"],["fundamentals","Fundamentals"],["technical","Technical"],["earnings","Earnings"],["analysts","Analysts"],["verdict","Verdict"]];
+
+function render() {
+  const tabBar = TABS.map(([id,label]) => {
+    const on = activeTab===id;
+    return `<button onclick="setTab('${id}')" style="background:${on?P.panel:"transparent"}; border:none; border-bottom:${on?`2px solid ${P.accent}`:"2px solid transparent"}; color:${on?P.text:P.faint}; padding:12px 15px; cursor:pointer; font-size:11px; letter-spacing:0.07em; white-space:nowrap;" class="mono">${label.toUpperCase()}</button>`;
+  }).join("");
+  $("content").innerHTML = `<div class="fade" style="background:${P.panel}; border:1px solid ${P.border}; border-radius:14px; overflow:hidden;">
+    <div class="tabs" style="display:flex; border-bottom:1px solid ${P.border}; overflow-x:auto; background:${P.panelAlt};">${tabBar}</div>
+    <div class="fade" style="padding:24px;">${renderTab()}</div>
+  </div>`;
+}
+function setTab(id){ activeTab=id; render(); }
+
+function statCell(label,value,accent){ return `<div style="background:${P.panelAlt}; border:1px solid ${P.border}; border-radius:8px; padding:12px 14px;"><div class="mono" style="font-size:9px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:5px;">${label}</div><div class="mono" style="font-size:16px; font-weight:600; color:${accent||P.text};">${value||"—"}</div></div>`; }
+function sectionLabel(t){ return `<div class="mono" style="font-size:10px; color:${P.accent}; letter-spacing:0.16em; margin-bottom:12px; display:flex; align-items:center; gap:8px;"><span style="width:14px; height:1px; background:${P.accent}; opacity:.5;"></span>${t}</div>`; }
+
+function renderTab() {
+  const d = DATA;
+  if (activeTab==="overview") {
+    const ch = d.change||"—"; const chColor = ch.startsWith("+")?P.green:ch.startsWith("-")?P.red:P.dim;
+    return `<div style="display:flex; flex-direction:column; gap:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+        <div style="display:flex; gap:14px; align-items:center;">
+          ${d.logo?`<img src="${d.logo}" style="width:48px; height:48px; border-radius:10px; background:#fff; padding:4px; object-fit:contain;" onerror="this.style.display='none'"/>`:""}
+          <div>
+            <h2 style="margin:0; font-size:26px; font-weight:700; font-family:'Fraunces',serif;">${d.companyName}</h2>
+            <div style="margin-top:6px;"><span class="mono" style="font-size:12px; color:${P.accent}; font-weight:600; padding:2px 8px; background:${P.accentSoft}; border-radius:4px;">${d.ticker} · ${d.exchange}</span> <span class="mono" style="font-size:12px; color:${P.dim};">${d.sector}</span></div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div class="mono" style="font-size:28px; font-weight:700;">${d.currentPrice}</div>
+          <div class="mono" style="font-size:13px; color:${chColor};">${ch} today</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px;">
+        ${statCell("MARKET CAP",d.marketCap)}
+        ${statCell("52W HIGH",d.week52High,P.green)}
+        ${statCell("52W LOW",d.week52Low,P.red)}
+        ${statCell("BETA",d.metrics.beta)}
+        ${statCell("DIV YIELD",d.metrics.dividendYield)}
+        ${statCell("IPO",d.ipo)}
+      </div>
+      <div class="mono" style="padding:11px 14px; background:${P.panelAlt}; border:1px solid ${P.border}; border-radius:8px; font-size:11px; color:${P.faint}; line-height:1.5;">Live data from Finnhub. For informational purposes only — not financial advice.</div>
+    </div>`;
+  }
+  if (activeTab==="fundamentals") {
+    const m = d.metrics;
+    const cards = [
+      ["P/E RATIO",m.pe],["P/S RATIO",m.ps],["P/B RATIO",m.pb],["ROE",m.roe],
+      ["NET MARGIN",m.netMargin],["DEBT/EQUITY",m.debtToEquity],["REV GROWTH YOY",m.revenueGrowth],["DIV YIELD",m.dividendYield]
+    ];
+    return `${sectionLabel("KEY FUNDAMENTAL METRICS")}
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;">
+        ${cards.map(([l,v])=>`<div style="background:${P.panelAlt}; border:1px solid ${P.border}; border-left:3px solid ${P.accent}; border-radius:8px; padding:13px;"><div class="mono" style="font-size:9px; color:${P.faint}; letter-spacing:0.12em; margin-bottom:6px;">${l}</div><div class="mono" style="font-size:19px; font-weight:700;">${v}</div></div>`).join("")}
+      </div>
+      <p style="margin:16px 0 0; color:${P.faint}; font-size:12px; line-height:1.6;">These are trailing-twelve-month figures where available, pulled live. Dashes indicate the metric isn't available on the current data plan.</p>`;
+  }
+  if (activeTab==="technical") {
+    const t = d.technical;
+    if (!t) return `<p style="color:${P.dim}; font-size:13px;">Technical data (price history) isn't available for this symbol on the current data plan.</p>`;
+    const sc = t.signal==="Bullish"?P.green:t.signal==="Bearish"?P.red:P.amber;
+    return `<div style="display:flex; flex-direction:column; gap:22px;">
+      <div style="background:${sc}0d; border:1px solid ${sc}40; border-radius:10px; padding:16px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div><div class="mono" style="font-size:10px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:4px;">SIGNAL</div><div style="font-size:22px; font-weight:700; color:${sc}; font-family:'Fraunces',serif;">${t.signal}</div></div>
+        <div style="text-align:right;"><div class="mono" style="font-size:10px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:4px;">TREND</div><div class="mono" style="font-size:14px; font-weight:600;">${t.trend}</div></div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px;">
+        ${statCell("RSI (14)",t.rsi, t.rsi>70?P.red:t.rsi<30?P.green:P.text)}
+        ${statCell("50-DAY MA",t.sma50)}
+        ${statCell("200-DAY MA",t.sma200)}
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div style="background:${P.green}0d; border:1px solid ${P.green}30; border-radius:8px; padding:14px;"><div class="mono" style="font-size:9px; color:${P.green}; letter-spacing:0.12em; margin-bottom:8px;">SUPPORT (60D LOW)</div><div class="mono" style="font-size:18px; font-weight:600;">${t.support}</div></div>
+        <div style="background:${P.red}0d; border:1px solid ${P.red}30; border-radius:8px; padding:14px;"><div class="mono" style="font-size:9px; color:${P.red}; letter-spacing:0.12em; margin-bottom:8px;">RESISTANCE (60D HIGH)</div><div class="mono" style="font-size:18px; font-weight:600;">${t.resistance}</div></div>
+      </div>
+    </div>`;
+  }
+  if (activeTab==="earnings") {
+    if (!d.earnings || !d.earnings.length) return `<p style="color:${P.dim}; font-size:13px;">Earnings history isn't available for this symbol on the current plan.</p>`;
+    return `${sectionLabel("RECENT EARNINGS — ACTUAL vs ESTIMATE")}
+      <div style="overflow-x:auto; border:1px solid ${P.border}; border-radius:8px;">
+        <table><thead><tr style="background:${P.panelAlt};"><th style="text-align:left;">PERIOD</th><th style="text-align:right;">EPS ACTUAL</th><th style="text-align:right;">EPS EST.</th><th style="text-align:center;">RESULT</th></tr></thead>
+        <tbody>${d.earnings.map(e=>`<tr><td style="color:${P.dim};">${e.period}</td><td style="text-align:right; font-weight:600;">${e.actual}</td><td style="text-align:right; color:${P.dim};">${e.estimate}</td><td style="text-align:center;"><span class="mono" style="font-size:9px; color:${e.beat?P.green:P.red}; padding:2px 8px; border:1px solid ${e.beat?P.green:P.red}; border-radius:3px;">${e.beat===null?"—":e.beat?"BEAT":"MISS"}</span></td></tr>`).join("")}</tbody></table>
+      </div>`;
+  }
+  if (activeTab==="analysts") {
+    const a = d.analysts, pt = d.priceTarget;
+    if (!a && !pt) return `<p style="color:${P.dim}; font-size:13px;">Analyst ratings and price targets aren't available for this symbol on the current plan.</p>`;
+    let html = "";
+    if (a) {
+      const total = a.strongBuy+a.buy+a.hold+a.sell+a.strongSell || 1;
+      const buys = a.strongBuy+a.buy, sells=a.sell+a.strongSell;
+      const bP=Math.round(buys/total*100), hP=Math.round(a.hold/total*100), sP=100-bP-hP;
+      html += `${sectionLabel(`ANALYST RATINGS · ${total} FIRMS · ${a.period}`)}
+        <div style="display:flex; border-radius:6px; overflow:hidden; height:22px; margin-bottom:8px;"><div style="width:${bP}%; background:${P.green};"></div><div style="width:${hP}%; background:${P.amber};"></div><div style="width:${sP}%; background:${P.red};"></div></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:22px;">
+          <span class="mono" style="font-size:11px; color:${P.dim};">● BUY ${buys} · ${bP}%</span>
+          <span class="mono" style="font-size:11px; color:${P.dim};">● HOLD ${a.hold} · ${hP}%</span>
+          <span class="mono" style="font-size:11px; color:${P.dim};">● SELL ${sells} · ${sP}%</span>
+        </div>`;
+    }
+    if (pt) {
+      html += `${sectionLabel("PRICE TARGET")}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px;">
+          ${statCell("MEAN TARGET",pt.mean,P.accent)}
+          ${statCell("HIGH",pt.high,P.green)}
+          ${statCell("LOW",pt.low,P.red)}
+          ${statCell("UPSIDE",pt.upside, (pt.upside||"").startsWith("-")?P.red:P.green)}
+        </div>`;
+    }
+    return html;
+  }
+  if (activeTab==="verdict") {
+    // Build a simple, transparent score from live signals
+    let score = 50, notes = [];
+    const a = d.analysts, pt = d.priceTarget, t = d.technical, m = d.metrics;
+    if (a) { const tot=a.strongBuy+a.buy+a.hold+a.sell+a.strongSell||1; const buyShare=(a.strongBuy+a.buy)/tot; score += Math.round((buyShare-0.5)*40); notes.push(`${Math.round(buyShare*100)}% of analysts rate it Buy`); }
+    if (pt && pt.upside && pt.upside!=="—") { const up=parseFloat(pt.upside); if(!isNaN(up)){ score += Math.max(-15,Math.min(15,Math.round(up/2))); notes.push(`${up>0?"+":""}${up}% to mean price target`);} }
+    if (t) { if(t.signal==="Bullish"){score+=10; notes.push("price above 50 & 200-day averages");} else if(t.signal==="Bearish"){score-=10; notes.push("price below key moving averages");} }
+    score = Math.max(1, Math.min(99, score));
+    const rec = score>=70?"BUY":score>=45?"HOLD":"SELL";
+    const color = rec==="BUY"?P.green:rec==="SELL"?P.red:P.amber;
+    const circ = 2*Math.PI*38, offset = circ-(score/100)*circ;
+    return `<div style="display:flex; flex-direction:column; gap:22px;">
+      <div style="background:${color}0a; border:1px solid ${color}35; border-radius:12px; padding:20px; display:flex; align-items:center; gap:22px; flex-wrap:wrap;">
+        <div style="position:relative; width:92px; height:92px;">
+          <svg width="92" height="92" style="transform:rotate(-90deg);"><circle cx="46" cy="46" r="38" fill="none" stroke="${P.border}" stroke-width="6"/><circle cx="46" cy="46" r="38" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
+          <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span class="mono" style="font-size:26px; font-weight:700; color:${color};">${score}</span><span class="mono" style="font-size:8px; color:${P.faint};">SCORE</span></div>
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <div class="mono" style="font-size:10px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:6px;">SIGNAL-BASED VERDICT</div>
+          <div style="font-size:30px; font-weight:700; color:${color}; font-family:'Fraunces',serif;">${rec}</div>
+        </div>
+      </div>
+      ${sectionLabel("HOW THIS SCORE WAS BUILT")}
+      <ul style="margin:0; padding-left:18px; color:${P.dim}; font-size:13px; line-height:1.8;">
+        ${notes.length?notes.map(n=>`<li>${n}</li>`).join(""):"<li>Limited signals available for this symbol on the current data plan.</li>"}
+      </ul>
+      <div class="mono" style="padding:11px 14px; background:${P.panelAlt}; border:1px solid ${P.border}; border-radius:8px; font-size:11px; color:${P.faint}; line-height:1.5;">This score is a transparent blend of live analyst consensus, price-target upside, and trend signals — not a guarantee. It is informational only and not financial advice. Always do your own research.</div>
+    </div>`;
+  }
+}
+window.pick = pick; window.setTab = setTab; window.analyze = analyze;
+</script>
+</body>
+</html>
