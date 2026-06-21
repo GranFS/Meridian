@@ -5,48 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Meridian — Live Equity Research</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg:#0a0e14; --panel:#11161f; --panelAlt:#0d1117; --border:#1c2433;
-    --text:#e6edf3; --dim:#8b98a9; --faint:#566173;
-    --accent:#d4a04c; --accentSoft:#d4a04c1a; --green:#3fb950; --red:#f85149; --amber:#d4a04c;
+  :root{
+    --bg:#f6f8fb; --card:#ffffff; --line:#e4e9f0; --line2:#eef2f7;
+    --ink:#0b1f3a; --ink2:#46566b; --faint:#8a99ad;
+    --blue:#2563eb; --blueSoft:#eaf1fe; --green:#16a34a; --greenSoft:#e9f7ef;
+    --red:#dc2626; --redSoft:#fdecec; --amber:#d97706; --amberSoft:#fdf2e2; --purple:#7c3aed;
   }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); font-family:'Inter',sans-serif; color:var(--text); padding:26px 16px; min-height:100vh; }
-  .wrap { max-width:840px; margin:0 auto; }
-  h1 { margin:0; font-size:26px; font-weight:700; font-family:'Fraunces',serif; letter-spacing:-0.01em; }
-  .mono { font-family:'IBM Plex Mono',monospace; }
-  .spin { width:38px; height:38px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .fade { animation:fade .35s ease; }
-  @keyframes fade { from { opacity:0; transform:translateY(6px);} to {opacity:1; transform:none;} }
-  input { width:100%; background:var(--panel); border:1px solid var(--border); border-radius:9px; padding:13px 14px 13px 40px; color:var(--text); font-size:15px; font-family:'Inter',sans-serif; font-weight:500; outline:none; transition:border-color .15s; }
-  input:focus { border-color:var(--accent); }
-  .opt:hover { background:var(--accentSoft); }
-  .tabs::-webkit-scrollbar { display:none; }
-  .tabs { scrollbar-width:none; }
-  table { width:100%; border-collapse:collapse; font-family:'IBM Plex Mono',monospace; font-size:12px; }
-  th { padding:10px 14px; color:var(--faint); font-size:10px; letter-spacing:0.1em; font-weight:600; border-bottom:1px solid var(--border); }
-  td { padding:9px 14px; border-bottom:1px solid #1c243350; }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); font-family:'Inter',sans-serif; color:var(--ink); padding:22px 14px; min-height:100vh;}
+  .wrap{max-width:920px; margin:0 auto;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  h1{margin:0; font-size:24px; font-weight:800; letter-spacing:-0.02em;}
+  h2{margin:0; font-size:24px; font-weight:800; letter-spacing:-0.02em;}
+  .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:s .8s linear infinite;}
+  @keyframes s{to{transform:rotate(360deg);}}
+  .fade{animation:f .3s ease;}
+  @keyframes f{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+  input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:11px;padding:13px 14px 13px 42px;color:var(--ink);font-size:15px;font-weight:500;outline:none;transition:border-color .15s,box-shadow .15s;}
+  input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blueSoft);}
+  input::placeholder{color:var(--faint);}
+  .opt:hover{background:var(--blueSoft);}
+  .tabs::-webkit-scrollbar{display:none;} .tabs{scrollbar-width:none;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{padding:9px 12px;color:var(--faint);font-size:10px;letter-spacing:0.07em;font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--line);text-align:right;}
+  th:first-child{text-align:left;}
+  td{padding:10px 12px;border-bottom:1px solid var(--line2);text-align:right;}
+  td:first-child{text-align:left;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;}
+  .pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;}
+  .chip{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:9px 12px;display:flex;flex-direction:column;gap:2px;transition:all .15s;}
+  .chip:hover{border-color:var(--blue);box-shadow:0 2px 10px rgba(37,99,235,.12);transform:translateY(-1px);}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 13px;}
+  .slabel{font-size:10px;color:var(--faint);letter-spacing:0.05em;font-weight:600;text-transform:uppercase;margin-bottom:5px;}
+  .sval{font-size:16px;font-weight:700;}
+  .sec{font-size:11px;color:var(--blue);font-weight:700;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:8px;}
+  .sec::after{content:"";flex:1;height:1px;background:var(--line);}
+  .note{font-size:11.5px;color:var(--faint);line-height:1.55;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div style="margin-bottom:22px;">
-    <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;">
-      <h1>Meridian</h1>
-      <span class="mono" style="font-size:10px; color:var(--accent); letter-spacing:0.2em;">EQUITY RESEARCH</span>
-      <span class="mono" style="font-size:9px; color:var(--green); letter-spacing:0.12em; padding:2px 7px; border:1px solid #3fb95040; border-radius:4px; background:#3fb95010; display:inline-flex; align-items:center; gap:5px;">
-        <span style="width:6px; height:6px; border-radius:50%; background:var(--green); display:inline-block;"></span>LIVE
-      </span>
-    </div>
-    <p class="mono" style="margin:4px 0 0; color:var(--faint); font-size:12px;">Search a company — live data via Finnhub</p>
+  <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+    <h1>Meridian</h1>
+    <span class="mono" style="font-size:10px;color:var(--blue);letter-spacing:0.18em;font-weight:600;">EQUITY RESEARCH</span>
+    <span class="pill" style="background:var(--greenSoft);color:var(--green);"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);"></span>LIVE</span>
   </div>
 
-  <div id="searchBox" style="position:relative; margin-bottom:26px;">
-    <span class="mono" style="position:absolute; left:16px; top:14px; color:var(--faint); font-size:14px; pointer-events:none;">&#9906;</span>
-    <input id="search" placeholder="Search a company — e.g. Apple, Nvidia, Tesla…" autocomplete="off" />
+  <div id="searchBox" style="position:relative;margin-bottom:22px;">
+    <span class="mono" style="position:absolute;left:15px;top:14px;color:var(--faint);font-size:15px;pointer-events:none;">&#9906;</span>
+    <input id="search" placeholder="Search a company — Apple, Nvidia, Tesla…" autocomplete="off" />
     <div id="dropdown"></div>
   </div>
 
@@ -54,209 +63,222 @@
 </div>
 
 <script>
-const P = { green:"#3fb950", red:"#f85149", amber:"#d4a04c", accent:"#d4a04c", text:"#e6edf3", dim:"#8b98a9", faint:"#566173", border:"#1c2433", panel:"#11161f", panelAlt:"#0d1117", accentSoft:"#d4a04c1a" };
-const $ = (id) => document.getElementById(id);
-let debounce, lastReq = 0, activeTab = "overview", DATA = null;
+const C={blue:"#2563eb",blueSoft:"#eaf1fe",green:"#16a34a",greenSoft:"#e9f7ef",red:"#dc2626",redSoft:"#fdecec",amber:"#d97706",amberSoft:"#fdf2e2",purple:"#7c3aed",ink:"#0b1f3a",ink2:"#46566b",faint:"#8a99ad",line:"#e4e9f0",card:"#ffffff"};
+const $=(id)=>document.getElementById(id);
+let debounce,lastReq=0,activeTab="overview",DATA=null;
 
-function ratingColor(r){ const v=(r||"").toLowerCase(); if(v.includes("buy"))return P.green; if(v.includes("sell"))return P.red; return P.amber; }
+function chgColor(v){return v==null?C.faint:v>0?C.green:v<0?C.red:C.faint;}
 
-/* ---------- search + dropdown ---------- */
-$("search").addEventListener("input", (e) => {
-  const q = e.target.value.trim();
-  clearTimeout(debounce);
-  if (q.length < 2) { $("dropdown").innerHTML = ""; return; }
-  debounce = setTimeout(() => doSearch(q), 350);
-});
-
-async function doSearch(q) {
-  const myId = ++lastReq;
-  $("dropdown").innerHTML = dropdownShell(`<div style="padding:12px 16px; color:${P.faint}; font-size:12px; display:flex; align-items:center; gap:10px;" class="mono"><div class="spin" style="width:14px;height:14px;border-width:2px;"></div>Searching…</div>`);
-  try {
-    const res = await fetch(`/api/stock?mode=search&q=${encodeURIComponent(q)}`);
-    const json = await res.json();
-    if (myId !== lastReq) return;
-    if (json.error) return showDropError(json.error);
-    const results = json.results || [];
-    if (!results.length) return showDropError("No matches found. Try the full company name or exact ticker.");
-    $("dropdown").innerHTML = dropdownShell(results.map((c,i) => `
-      <div class="opt" onclick='pick(${JSON.stringify(c).replace(/'/g,"&#39;")})' style="padding:11px 16px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; ${i<results.length-1?`border-bottom:1px solid ${P.border};`:""} transition:background .12s;">
-        <span style="font-size:14px; font-weight:500;">${c.name}</span>
-        <span class="mono" style="color:${P.accent}; font-size:12px; font-weight:600; padding:2px 8px; background:${P.accentSoft}; border-radius:4px;">${c.ticker} · ${c.exchange}</span>
-      </div>`).join(""));
-  } catch (err) {
-    if (myId === lastReq) showDropError("Search failed: " + err.message);
-  }
+/* search */
+$("search").addEventListener("input",(e)=>{const q=e.target.value.trim();clearTimeout(debounce);if(q.length<2){$("dropdown").innerHTML="";return;}debounce=setTimeout(()=>doSearch(q),350);});
+async function doSearch(q){
+  const myId=++lastReq;
+  $("dropdown").innerHTML=shell(`<div class="mono" style="padding:12px 15px;color:${C.faint};font-size:12px;display:flex;align-items:center;gap:10px;"><div class="spin" style="width:14px;height:14px;border-width:2px;"></div>Searching…</div>`);
+  try{
+    const r=await fetch(`/api/stock?mode=search&q=${encodeURIComponent(q)}`);const j=await r.json();
+    if(myId!==lastReq)return;
+    if(j.error)return dropErr(j.error);
+    const results=j.results||[];
+    if(!results.length)return dropErr("No matches. Try the full name or exact ticker.");
+    $("dropdown").innerHTML=shell(results.map((c,i)=>`<div class="opt" onclick='pick(${JSON.stringify(c).replace(/'/g,"&#39;")})' style="padding:11px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;${i<results.length-1?`border-bottom:1px solid ${C.line};`:""}">
+      <span style="font-size:14px;font-weight:600;">${c.name}</span>
+      <span class="mono" style="color:${C.blue};font-size:12px;font-weight:600;padding:2px 8px;background:${C.blueSoft};border-radius:5px;">${c.ticker} · ${c.exchange}</span></div>`).join(""));
+  }catch(e){if(myId===lastReq)dropErr("Search failed: "+e.message);}
 }
-function dropdownShell(inner){ return `<div class="fade" style="position:absolute; top:calc(100% + 6px); left:0; right:0; background:${P.panel}; border:1px solid ${P.border}; border-radius:10px; overflow:hidden; z-index:20; box-shadow:0 12px 32px rgba(0,0,0,0.5);">${inner}</div>`; }
-function showDropError(msg){ $("dropdown").innerHTML = dropdownShell(`<div class="mono" style="padding:12px 16px; color:${P.red}; font-size:12px; line-height:1.5;">⚠ ${msg}</div>`); }
-document.addEventListener("click", (e) => { if (!$("searchBox").contains(e.target)) $("dropdown").innerHTML = ""; });
+function shell(inner){return `<div class="fade card" style="position:absolute;top:calc(100% + 6px);left:0;right:0;overflow:hidden;z-index:20;box-shadow:0 14px 36px rgba(11,31,58,.13);">${inner}</div>`;}
+function dropErr(m){$("dropdown").innerHTML=shell(`<div class="mono" style="padding:12px 15px;color:${C.red};font-size:12px;line-height:1.5;">⚠ ${m}</div>`);}
+document.addEventListener("click",(e)=>{if(!$("searchBox").contains(e.target))$("dropdown").innerHTML="";});
+function pick(c){$("search").value=`${c.name} (${c.ticker})`;$("dropdown").innerHTML="";analyze(c.ticker);}
+function loadTicker(t){$("search").value=t;analyze(t);window.scrollTo({top:0,behavior:"smooth"});}
 
-function pick(c) {
-  $("search").value = `${c.name} (${c.ticker})`;
-  $("dropdown").innerHTML = "";
-  analyze(c.ticker);
-}
-
-/* ---------- analyze ---------- */
-async function analyze(sym) {
-  activeTab = "overview"; DATA = null;
-  $("content").innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; gap:18px; padding:70px 0;"><div class="spin"></div><p class="mono" style="color:${P.faint}; font-size:12px; letter-spacing:0.18em;">FETCHING LIVE DATA…</p></div>`;
-  try {
-    const res = await fetch(`/api/stock?mode=analyze&q=${encodeURIComponent(sym)}`);
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
-    DATA = json;
-    render();
-  } catch (err) {
-    $("content").innerHTML = `<div class="mono" style="padding:16px; background:${P.red}10; border:1px solid ${P.red}35; border-radius:9px; color:${P.red}; font-size:12.5px; line-height:1.5;">⚠ ${err.message}</div>`;
+/* analyze */
+async function analyze(sym){
+  activeTab="overview";DATA=null;
+  $("content").innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:64px 0;"><div class="spin"></div><p class="mono" style="color:${C.faint};font-size:12px;letter-spacing:0.16em;">FETCHING LIVE DATA…</p></div>`;
+  try{
+    const r=await fetch(`/api/stock?mode=analyze&q=${encodeURIComponent(sym)}`);const j=await r.json();
+    if(j.error)throw new Error(j.error);
+    DATA=j;render();
+  }catch(e){
+    $("content").innerHTML=`<div class="mono card" style="padding:16px;background:${C.redSoft};border-color:${C.red}55;color:${C.red};font-size:12.5px;line-height:1.5;">⚠ ${e.message}</div>`;
   }
 }
 
-/* ---------- render ---------- */
-const TABS = [["overview","Overview"],["fundamentals","Fundamentals"],["technical","Technical"],["earnings","Earnings"],["analysts","Analysts"],["verdict","Verdict"]];
+const TABS=[["overview","Overview"],["fundamentals","Fundamentals"],["valuation","Valuation"],["dcf","DCF Model"],["technical","Technical"],["analysts","Analysts & Targets"],["peers","Comparables"]];
+function setTab(id){activeTab=id;render();}
 
-function render() {
-  const tabBar = TABS.map(([id,label]) => {
-    const on = activeTab===id;
-    return `<button onclick="setTab('${id}')" style="background:${on?P.panel:"transparent"}; border:none; border-bottom:${on?`2px solid ${P.accent}`:"2px solid transparent"}; color:${on?P.text:P.faint}; padding:12px 15px; cursor:pointer; font-size:11px; letter-spacing:0.07em; white-space:nowrap;" class="mono">${label.toUpperCase()}</button>`;
-  }).join("");
-  $("content").innerHTML = `<div class="fade" style="background:${P.panel}; border:1px solid ${P.border}; border-radius:14px; overflow:hidden;">
-    <div class="tabs" style="display:flex; border-bottom:1px solid ${P.border}; overflow-x:auto; background:${P.panelAlt};">${tabBar}</div>
-    <div class="fade" style="padding:24px;">${renderTab()}</div>
+function render(){
+  const bar=TABS.map(([id,label])=>{const on=activeTab===id;return `<button onclick="setTab('${id}')" style="background:${on?C.card:"transparent"};border:none;border-bottom:${on?`2.5px solid ${C.blue}`:"2.5px solid transparent"};color:${on?C.blue:C.ink2};padding:13px 15px;cursor:pointer;font-size:12.5px;font-weight:${on?700:500};white-space:nowrap;">${label}</button>`;}).join("");
+  $("content").innerHTML=`<div class="fade card" style="overflow:hidden;">
+    <div class="tabs" style="display:flex;border-bottom:1px solid ${C.line};overflow-x:auto;background:#fbfcfe;">${bar}</div>
+    <div class="fade" style="padding:22px;">${renderTab()}</div></div>`;
+}
+
+function stat(label,val,accent){return `<div class="stat"><div class="slabel">${label}</div><div class="sval" style="${accent?`color:${accent};`:""}">${val||"—"}</div></div>`;}
+function sec(t){return `<div class="sec">${t}</div>`;}
+
+function renderTab(){
+  const d=DATA;
+  if(activeTab==="overview")return ovTab(d);
+  if(activeTab==="fundamentals")return fundTab(d);
+  if(activeTab==="valuation")return valTab(d);
+  if(activeTab==="dcf")return dcfTab(d);
+  if(activeTab==="technical")return techTab(d);
+  if(activeTab==="analysts")return analystTab(d);
+  if(activeTab==="peers")return peersTab(d);
+}
+
+function ovTab(d){
+  const cc=chgColor(d.changeRaw);
+  return `<div style="display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
+      <div style="display:flex;gap:13px;align-items:center;">
+        ${d.logo?`<img src="${d.logo}" style="width:50px;height:50px;border-radius:11px;border:1px solid ${C.line};background:#fff;padding:5px;object-fit:contain;" onerror="this.style.display='none'"/>`:""}
+        <div><h2>${d.companyName}</h2>
+        <div style="margin-top:5px;"><span class="mono" style="font-size:12px;color:${C.blue};font-weight:600;padding:2px 8px;background:${C.blueSoft};border-radius:5px;">${d.ticker} · ${d.exchange}</span> <span style="font-size:12.5px;color:${C.ink2};">${d.sector}</span></div></div>
+      </div>
+      <div style="text-align:right;"><div style="font-size:30px;font-weight:800;">${d.currentPrice}</div><div class="mono" style="font-size:13px;font-weight:600;color:${cc};">${d.change} today</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:9px;">
+      ${stat("Market Cap",d.marketCap)}${stat("52W High",d.week52High,C.green)}${stat("52W Low",d.week52Low,C.red)}
+      ${stat("P/E (TTM)",d.metrics.pe)}${stat("Beta",d.metrics.beta)}${stat("Div Yield",d.metrics.dividendYield)}
+    </div>
+    ${d.consensus?`<div class="card" style="padding:14px 16px;background:${C.blueSoft};border-color:${C.blue}33;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div><div class="slabel" style="color:${C.blue};">Analyst Consensus Target</div><div style="font-size:22px;font-weight:800;color:${C.blue};">${d.consensus.mean}</div></div>
+      <div style="text-align:right;"><div class="slabel" style="color:${C.blue};">Implied Upside</div><div style="font-size:18px;font-weight:700;color:${(d.consensus.upside||'').startsWith('-')?C.red:C.green};">${d.consensus.upside}</div></div>
+    </div>`:""}
+    <p class="note">Live data via Finnhub${d.hasFMP?" + Financial Modeling Prep":""}. Informational only — not financial advice.</p>
   </div>`;
 }
-function setTab(id){ activeTab=id; render(); }
 
-function statCell(label,value,accent){ return `<div style="background:${P.panelAlt}; border:1px solid ${P.border}; border-radius:8px; padding:12px 14px;"><div class="mono" style="font-size:9px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:5px;">${label}</div><div class="mono" style="font-size:16px; font-weight:600; color:${accent||P.text};">${value||"—"}</div></div>`; }
-function sectionLabel(t){ return `<div class="mono" style="font-size:10px; color:${P.accent}; letter-spacing:0.16em; margin-bottom:12px; display:flex; align-items:center; gap:8px;"><span style="width:14px; height:1px; background:${P.accent}; opacity:.5;"></span>${t}</div>`; }
-
-function renderTab() {
-  const d = DATA;
-  if (activeTab==="overview") {
-    const ch = d.change||"—"; const chColor = ch.startsWith("+")?P.green:ch.startsWith("-")?P.red:P.dim;
-    return `<div style="display:flex; flex-direction:column; gap:20px;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
-        <div style="display:flex; gap:14px; align-items:center;">
-          ${d.logo?`<img src="${d.logo}" style="width:48px; height:48px; border-radius:10px; background:#fff; padding:4px; object-fit:contain;" onerror="this.style.display='none'"/>`:""}
-          <div>
-            <h2 style="margin:0; font-size:26px; font-weight:700; font-family:'Fraunces',serif;">${d.companyName}</h2>
-            <div style="margin-top:6px;"><span class="mono" style="font-size:12px; color:${P.accent}; font-weight:600; padding:2px 8px; background:${P.accentSoft}; border-radius:4px;">${d.ticker} · ${d.exchange}</span> <span class="mono" style="font-size:12px; color:${P.dim};">${d.sector}</span></div>
-          </div>
-        </div>
-        <div style="text-align:right;">
-          <div class="mono" style="font-size:28px; font-weight:700;">${d.currentPrice}</div>
-          <div class="mono" style="font-size:13px; color:${chColor};">${ch} today</div>
-        </div>
-      </div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px;">
-        ${statCell("MARKET CAP",d.marketCap)}
-        ${statCell("52W HIGH",d.week52High,P.green)}
-        ${statCell("52W LOW",d.week52Low,P.red)}
-        ${statCell("BETA",d.metrics.beta)}
-        ${statCell("DIV YIELD",d.metrics.dividendYield)}
-        ${statCell("IPO",d.ipo)}
-      </div>
-      <div class="mono" style="padding:11px 14px; background:${P.panelAlt}; border:1px solid ${P.border}; border-radius:8px; font-size:11px; color:${P.faint}; line-height:1.5;">Live data from Finnhub. For informational purposes only — not financial advice.</div>
-    </div>`;
+function fundTab(d){
+  const m=d.metrics;
+  const cards=[["P/E Ratio",m.pe],["P/S Ratio",m.ps],["P/B Ratio",m.pb],["ROE",m.roe],["Net Margin",m.netMargin],["Debt / Equity",m.debtToEquity],["Rev Growth YoY",m.revenueGrowth],["Dividend Yield",m.dividendYield]];
+  let earn="";
+  if(d.earnings&&d.earnings.length){
+    earn=`${sec("Recent Earnings — Actual vs Estimate")}<div class="card" style="overflow:hidden;"><table><thead><tr><th>Period</th><th>EPS Actual</th><th>EPS Est.</th><th>Result</th></tr></thead><tbody>${d.earnings.map(e=>`<tr><td style="color:${C.ink2};">${e.period}</td><td style="font-weight:700;">${e.actual}</td><td style="color:${C.ink2};">${e.estimate}</td><td><span class="pill" style="background:${e.beat?C.greenSoft:C.redSoft};color:${e.beat?C.green:C.red};">${e.beat===null?"—":e.beat?"BEAT":"MISS"}</span></td></tr>`).join("")}</tbody></table></div>`;
   }
-  if (activeTab==="fundamentals") {
-    const m = d.metrics;
-    const cards = [
-      ["P/E RATIO",m.pe],["P/S RATIO",m.ps],["P/B RATIO",m.pb],["ROE",m.roe],
-      ["NET MARGIN",m.netMargin],["DEBT/EQUITY",m.debtToEquity],["REV GROWTH YOY",m.revenueGrowth],["DIV YIELD",m.dividendYield]
-    ];
-    return `${sectionLabel("KEY FUNDAMENTAL METRICS")}
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;">
-        ${cards.map(([l,v])=>`<div style="background:${P.panelAlt}; border:1px solid ${P.border}; border-left:3px solid ${P.accent}; border-radius:8px; padding:13px;"><div class="mono" style="font-size:9px; color:${P.faint}; letter-spacing:0.12em; margin-bottom:6px;">${l}</div><div class="mono" style="font-size:19px; font-weight:700;">${v}</div></div>`).join("")}
-      </div>
-      <p style="margin:16px 0 0; color:${P.faint}; font-size:12px; line-height:1.6;">These are trailing-twelve-month figures where available, pulled live. Dashes indicate the metric isn't available on the current data plan.</p>`;
-  }
-  if (activeTab==="technical") {
-    const t = d.technical;
-    if (!t) return `<p style="color:${P.dim}; font-size:13px;">Technical data (price history) isn't available for this symbol on the current data plan.</p>`;
-    const sc = t.signal==="Bullish"?P.green:t.signal==="Bearish"?P.red:P.amber;
-    return `<div style="display:flex; flex-direction:column; gap:22px;">
-      <div style="background:${sc}0d; border:1px solid ${sc}40; border-radius:10px; padding:16px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-        <div><div class="mono" style="font-size:10px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:4px;">SIGNAL</div><div style="font-size:22px; font-weight:700; color:${sc}; font-family:'Fraunces',serif;">${t.signal}</div></div>
-        <div style="text-align:right;"><div class="mono" style="font-size:10px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:4px;">TREND</div><div class="mono" style="font-size:14px; font-weight:600;">${t.trend}</div></div>
-      </div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px;">
-        ${statCell("RSI (14)",t.rsi, t.rsi>70?P.red:t.rsi<30?P.green:P.text)}
-        ${statCell("50-DAY MA",t.sma50)}
-        ${statCell("200-DAY MA",t.sma200)}
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <div style="background:${P.green}0d; border:1px solid ${P.green}30; border-radius:8px; padding:14px;"><div class="mono" style="font-size:9px; color:${P.green}; letter-spacing:0.12em; margin-bottom:8px;">SUPPORT (60D LOW)</div><div class="mono" style="font-size:18px; font-weight:600;">${t.support}</div></div>
-        <div style="background:${P.red}0d; border:1px solid ${P.red}30; border-radius:8px; padding:14px;"><div class="mono" style="font-size:9px; color:${P.red}; letter-spacing:0.12em; margin-bottom:8px;">RESISTANCE (60D HIGH)</div><div class="mono" style="font-size:18px; font-weight:600;">${t.resistance}</div></div>
-      </div>
-    </div>`;
-  }
-  if (activeTab==="earnings") {
-    if (!d.earnings || !d.earnings.length) return `<p style="color:${P.dim}; font-size:13px;">Earnings history isn't available for this symbol on the current plan.</p>`;
-    return `${sectionLabel("RECENT EARNINGS — ACTUAL vs ESTIMATE")}
-      <div style="overflow-x:auto; border:1px solid ${P.border}; border-radius:8px;">
-        <table><thead><tr style="background:${P.panelAlt};"><th style="text-align:left;">PERIOD</th><th style="text-align:right;">EPS ACTUAL</th><th style="text-align:right;">EPS EST.</th><th style="text-align:center;">RESULT</th></tr></thead>
-        <tbody>${d.earnings.map(e=>`<tr><td style="color:${P.dim};">${e.period}</td><td style="text-align:right; font-weight:600;">${e.actual}</td><td style="text-align:right; color:${P.dim};">${e.estimate}</td><td style="text-align:center;"><span class="mono" style="font-size:9px; color:${e.beat?P.green:P.red}; padding:2px 8px; border:1px solid ${e.beat?P.green:P.red}; border-radius:3px;">${e.beat===null?"—":e.beat?"BEAT":"MISS"}</span></td></tr>`).join("")}</tbody></table>
-      </div>`;
-  }
-  if (activeTab==="analysts") {
-    const a = d.analysts, pt = d.priceTarget;
-    if (!a && !pt) return `<p style="color:${P.dim}; font-size:13px;">Analyst ratings and price targets aren't available for this symbol on the current plan.</p>`;
-    let html = "";
-    if (a) {
-      const total = a.strongBuy+a.buy+a.hold+a.sell+a.strongSell || 1;
-      const buys = a.strongBuy+a.buy, sells=a.sell+a.strongSell;
-      const bP=Math.round(buys/total*100), hP=Math.round(a.hold/total*100), sP=100-bP-hP;
-      html += `${sectionLabel(`ANALYST RATINGS · ${total} FIRMS · ${a.period}`)}
-        <div style="display:flex; border-radius:6px; overflow:hidden; height:22px; margin-bottom:8px;"><div style="width:${bP}%; background:${P.green};"></div><div style="width:${hP}%; background:${P.amber};"></div><div style="width:${sP}%; background:${P.red};"></div></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:22px;">
-          <span class="mono" style="font-size:11px; color:${P.dim};">● BUY ${buys} · ${bP}%</span>
-          <span class="mono" style="font-size:11px; color:${P.dim};">● HOLD ${a.hold} · ${hP}%</span>
-          <span class="mono" style="font-size:11px; color:${P.dim};">● SELL ${sells} · ${sP}%</span>
-        </div>`;
-    }
-    if (pt) {
-      html += `${sectionLabel("PRICE TARGET")}
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px;">
-          ${statCell("MEAN TARGET",pt.mean,P.accent)}
-          ${statCell("HIGH",pt.high,P.green)}
-          ${statCell("LOW",pt.low,P.red)}
-          ${statCell("UPSIDE",pt.upside, (pt.upside||"").startsWith("-")?P.red:P.green)}
-        </div>`;
-    }
-    return html;
-  }
-  if (activeTab==="verdict") {
-    // Build a simple, transparent score from live signals
-    let score = 50, notes = [];
-    const a = d.analysts, pt = d.priceTarget, t = d.technical, m = d.metrics;
-    if (a) { const tot=a.strongBuy+a.buy+a.hold+a.sell+a.strongSell||1; const buyShare=(a.strongBuy+a.buy)/tot; score += Math.round((buyShare-0.5)*40); notes.push(`${Math.round(buyShare*100)}% of analysts rate it Buy`); }
-    if (pt && pt.upside && pt.upside!=="—") { const up=parseFloat(pt.upside); if(!isNaN(up)){ score += Math.max(-15,Math.min(15,Math.round(up/2))); notes.push(`${up>0?"+":""}${up}% to mean price target`);} }
-    if (t) { if(t.signal==="Bullish"){score+=10; notes.push("price above 50 & 200-day averages");} else if(t.signal==="Bearish"){score-=10; notes.push("price below key moving averages");} }
-    score = Math.max(1, Math.min(99, score));
-    const rec = score>=70?"BUY":score>=45?"HOLD":"SELL";
-    const color = rec==="BUY"?P.green:rec==="SELL"?P.red:P.amber;
-    const circ = 2*Math.PI*38, offset = circ-(score/100)*circ;
-    return `<div style="display:flex; flex-direction:column; gap:22px;">
-      <div style="background:${color}0a; border:1px solid ${color}35; border-radius:12px; padding:20px; display:flex; align-items:center; gap:22px; flex-wrap:wrap;">
-        <div style="position:relative; width:92px; height:92px;">
-          <svg width="92" height="92" style="transform:rotate(-90deg);"><circle cx="46" cy="46" r="38" fill="none" stroke="${P.border}" stroke-width="6"/><circle cx="46" cy="46" r="38" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/></svg>
-          <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;"><span class="mono" style="font-size:26px; font-weight:700; color:${color};">${score}</span><span class="mono" style="font-size:8px; color:${P.faint};">SCORE</span></div>
-        </div>
-        <div style="flex:1; min-width:180px;">
-          <div class="mono" style="font-size:10px; color:${P.faint}; letter-spacing:0.14em; margin-bottom:6px;">SIGNAL-BASED VERDICT</div>
-          <div style="font-size:30px; font-weight:700; color:${color}; font-family:'Fraunces',serif;">${rec}</div>
-        </div>
-      </div>
-      ${sectionLabel("HOW THIS SCORE WAS BUILT")}
-      <ul style="margin:0; padding-left:18px; color:${P.dim}; font-size:13px; line-height:1.8;">
-        ${notes.length?notes.map(n=>`<li>${n}</li>`).join(""):"<li>Limited signals available for this symbol on the current data plan.</li>"}
-      </ul>
-      <div class="mono" style="padding:11px 14px; background:${P.panelAlt}; border:1px solid ${P.border}; border-radius:8px; font-size:11px; color:${P.faint}; line-height:1.5;">This score is a transparent blend of live analyst consensus, price-target upside, and trend signals — not a guarantee. It is informational only and not financial advice. Always do your own research.</div>
-    </div>`;
-  }
+  return `${sec("Key Fundamental Metrics")}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin-bottom:20px;">
+      ${cards.map(([l,v])=>`<div class="stat" style="border-left:3px solid ${C.blue};"><div class="slabel">${l}</div><div class="sval">${v}</div></div>`).join("")}
+    </div>${earn}
+    <p class="note" style="margin-top:14px;">Trailing-twelve-month figures where available. A dash means the metric isn't on the current data plan.</p>`;
 }
-window.pick = pick; window.setTab = setTab; window.analyze = analyze;
+
+function valTab(d){
+  let html=sec("Valuation Summary");
+  const rows=[];
+  if(d.currentPrice)rows.push(["Current Price",d.currentPrice,"",C.ink]);
+  if(d.consensus)rows.push(["Analyst Consensus Target",d.consensus.mean,d.consensus.upside,C.blue]);
+  if(d.dcf)rows.push(["DCF Fair Value",d.dcf.fairValue,d.dcf.upside,C.purple]);
+  html+=`<div class="card" style="overflow:hidden;margin-bottom:20px;"><table><thead><tr><th>Method</th><th>Value / Target</th><th>Upside</th></tr></thead><tbody>${rows.map(r=>`<tr><td style="font-weight:600;color:${r[3]};">${r[0]}</td><td style="font-weight:700;">${r[1]}</td><td style="font-weight:600;color:${(r[2]||'').startsWith('-')?C.red:r[2]?C.green:C.faint};">${r[2]||"—"}</td></tr>`).join("")}</tbody></table></div>`;
+
+  if(d.ev){
+    html+=sec("Enterprise Value");
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-bottom:8px;">
+      ${stat("Enterprise Value",d.ev.enterpriseValue,C.purple)}${stat("EV / EBITDA",d.ev.evEbitda)}${stat("EV / Sales",d.ev.evSales)}</div>`;
+  }
+  if(d.consensus){
+    html+=sec("Price Target Range");
+    html+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;">
+      ${stat("Low",d.consensus.low,C.red)}${stat("Mean",d.consensus.mean,C.blue)}${stat("High",d.consensus.high,C.green)}${stat("Upside",d.consensus.upside,(d.consensus.upside||'').startsWith('-')?C.red:C.green)}</div>`;
+  }
+  if(!d.dcf&&!d.ev&&!d.consensus)html+=`<p class="note">Valuation data isn't available for this symbol on the current data plan.</p>`;
+  return html;
+}
+
+function dcfTab(d){
+  if(!d.dcf)return `<p class="note">DCF inputs (free cash flow, balance sheet) aren't available for this symbol${d.hasFMP?"":" — add the optional FMP_KEY to enable DCF"}.</p>`;
+  const a=d.dcf.assumptions;
+  const assumpRows=[
+    ["Risk-Free Rate (10Y)",a.riskFree],["Equity Risk Premium",a.erp],["Beta",a.beta],
+    ["Cost of Equity (CAPM)",a.costOfEquity],["After-Tax Cost of Debt",a.costOfDebt],["WACC",a.wacc],
+    ["Base FCF Growth",a.fcfGrowth],["Terminal Growth",a.terminalGrowth],["Expected Inflation",a.inflation],["Tax Rate",a.taxRate],
+  ];
+  const sens=d.dcf.sensitivity;
+  return `<div style="display:flex;flex-direction:column;gap:20px;">
+    <div class="card" style="padding:18px;background:linear-gradient(135deg,#f5f0ff,#eef4ff);border-color:${C.purple}33;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div><div class="slabel" style="color:${C.purple};">DCF Fair Value / Share</div><div style="font-size:30px;font-weight:800;color:${C.purple};">${d.dcf.fairValue}</div></div>
+      <div style="text-align:right;"><div class="slabel" style="color:${C.purple};">vs Current Price</div><div style="font-size:20px;font-weight:700;color:${(d.dcf.upside||'').startsWith('-')?C.red:C.green};">${d.dcf.upside}</div></div>
+    </div>
+
+    <div>${sec("Model Assumptions (Market Consensus Defaults)")}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;">
+        ${assumpRows.map(([l,v])=>`<div class="stat"><div class="slabel">${l}</div><div class="sval mono" style="font-size:14px;">${v}</div></div>`).join("")}
+      </div>
+    </div>
+
+    <div>${sec("Forward Risk-Free Rate Path (5Y)")}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${a.ratePath.map((r,i)=>`<div class="stat" style="flex:1;min-width:72px;text-align:center;"><div class="slabel">Year ${i+1}</div><div class="sval mono" style="font-size:14px;">${r}</div></div>`).join("")}
+      </div>
+      <p class="note" style="margin-top:8px;">Rates are modeled to drift over the horizon rather than held static, reflecting consensus expectations of policy easing.</p>
+    </div>
+
+    <div>${sec("Sensitivity — Fair Value by WACC × Terminal Growth")}
+      <div class="card" style="overflow:auto;"><table>
+        <thead><tr><th>WACC \\ g</th>${sens.tgCols.map(c=>`<th>${c}</th>`).join("")}</tr></thead>
+        <tbody>${sens.rows.map(r=>`<tr><td class="mono" style="font-weight:600;">${r.wacc}</td>${r.vals.map((v,i)=>{const mid=Math.floor(sens.tgCols.length/2);const isBase=i===mid;return `<td class="mono" style="font-weight:${isBase?700:500};${isBase?`background:${C.blueSoft};color:${C.blue};`:""}">${v}</td>`;}).join("")}</tr>`).join("")}</tbody>
+      </table></div>
+      <p class="note" style="margin-top:8px;">Highlighted column = base-case terminal growth. Base FCF this model starts from: ${d.dcf.fcfBase}. This is a transparent model on live fundamentals with consensus macro assumptions — not a price prediction.</p>
+    </div>
+  </div>`;
+}
+
+function techTab(d){
+  const t=d.technical;
+  if(!t)return `<p class="note">Price-history data isn't available for this symbol on the current plan.</p>`;
+  const sc=t.signal==="Bullish"?C.green:t.signal==="Bearish"?C.red:C.amber;
+  const ss=t.signal==="Bullish"?C.greenSoft:t.signal==="Bearish"?C.redSoft:C.amberSoft;
+  return `<div style="display:flex;flex-direction:column;gap:18px;">
+    <div class="card" style="padding:16px;background:${ss};border-color:${sc}44;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div><div class="slabel" style="color:${sc};">Technical Signal</div><div style="font-size:22px;font-weight:800;color:${sc};">${t.signal}</div></div>
+      <div style="text-align:right;"><div class="slabel" style="color:${sc};">Trend</div><div class="mono" style="font-size:14px;font-weight:600;">${t.trend}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;">
+      ${stat("RSI (14)",t.rsi,t.rsi>70?C.red:t.rsi<30?C.green:C.ink)}${stat("50-Day MA",t.sma50)}${stat("200-Day MA",t.sma200)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+      <div class="card" style="padding:14px;background:${C.greenSoft};border-color:${C.green}33;"><div class="slabel" style="color:${C.green};">Support (60D Low)</div><div style="font-size:18px;font-weight:700;">${t.support}</div></div>
+      <div class="card" style="padding:14px;background:${C.redSoft};border-color:${C.red}33;"><div class="slabel" style="color:${C.red};">Resistance (60D High)</div><div style="font-size:18px;font-weight:700;">${t.resistance}</div></div>
+    </div>
+    <p class="note">RSI above 70 is often considered overbought, below 30 oversold. Moving-average relationships indicate trend direction.</p>
+  </div>`;
+}
+
+function analystTab(d){
+  const a=d.analysts,co=d.consensus;
+  if(!a&&!co)return `<p class="note">Analyst ratings and targets aren't available for this symbol on the current plan.</p>`;
+  let html="";
+  if(a){
+    const total=a.strongBuy+a.buy+a.hold+a.sell+a.strongSell||1;
+    const buys=a.strongBuy+a.buy,sells=a.sell+a.strongSell;
+    const bP=Math.round(buys/total*100),hP=Math.round(a.hold/total*100),sP=100-bP-hP;
+    html+=`${sec(`Analyst Ratings · ${total} firms · ${a.period}`)}
+      <div style="display:flex;border-radius:8px;overflow:hidden;height:24px;margin-bottom:9px;">
+        <div style="width:${bP}%;background:${C.green};"></div><div style="width:${hP}%;background:${C.amber};"></div><div style="width:${sP}%;background:${C.red};"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:22px;font-size:12px;font-weight:600;">
+        <span style="color:${C.green};">● Buy ${buys} · ${bP}%</span><span style="color:${C.amber};">● Hold ${a.hold} · ${hP}%</span><span style="color:${C.red};">● Sell ${sells} · ${sP}%</span></div>`;
+  }
+  if(co){
+    html+=`${sec("Price Target")}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;">
+        ${stat("Low",co.low,C.red)}${stat("Mean",co.mean,C.blue)}${stat("High",co.high,C.green)}${stat("Upside",co.upside,(co.upside||'').startsWith('-')?C.red:C.green)}</div>`;
+  }
+  return html;
+}
+
+function peersTab(d){
+  if(!d.peers||!d.peers.length)return `<p class="note">No comparable companies returned for this symbol.</p>`;
+  return `${sec("Comparable Companies — tap to open")}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;">
+      ${d.peers.map(p=>`<div class="chip" onclick="loadTicker('${p.ticker}')">
+        <span class="mono" style="font-size:15px;font-weight:700;color:${C.blue};">${p.ticker}</span>
+        <span style="font-size:11px;color:${C.faint};">View analysis →</span></div>`).join("")}
+    </div>
+    <p class="note" style="margin-top:14px;">Peers are sourced live from the same sector/industry. Click any to load its full Meridian page.</p>`;
+}
+
+window.pick=pick;window.setTab=setTab;window.analyze=analyze;window.loadTicker=loadTicker;
 </script>
 </body>
 </html>
